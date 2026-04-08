@@ -1,24 +1,23 @@
-## Filestructure Documentation
+## File Structure Documentation
 
-app/
-    index.tsx        # Main frontend view
+* **`app/`**
+  * `index.tsx` — Main frontend view
+* **`src/`** — Backend source
+  * **`config/`**
+    * `firebase.js` — API keys & connection to Firebase
+  * **`services/`**
+    * `authService.js` — Authentication engine
 
-src/                     # Backend source
-    config/
-        firebase.js      # API keys & connection to Firebase
-    services/
-        authService.js   # Authentication engine
+## How to Run
 
-## To run
+**1. Install dependencies**
 
-1. Install dependencies
+```bash
+npm install
+```
 
-   ```bash
-   npm install
-   ```
+**2. Start the app**
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
+```bash
+npx expo start
+```
