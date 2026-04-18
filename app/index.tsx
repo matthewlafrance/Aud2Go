@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Text, ActivityIndicator, Alert, ScrollView } from 'react-native';
-import * as DocumentPicker from 'expo-document-picker';
 import { Audio } from 'expo-av';
+import * as DocumentPicker from 'expo-document-picker';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Button, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 
 // Supabase & Services
 import { supabase } from '../src/config/supabase';
-import { registerUser, loginUser, logoutUser } from '../src/services/authService';
-import { uploadAudioFile, getUserAudioFiles } from '../src/services/storageService'; // <-- Imported the new function
+import { loginUser, logoutUser, registerUser } from '../src/services/authService';
+import { deleteAudioFile, getUserAudioFiles, uploadAudioFile } from '../src/services/storageService'; // <-- Added delete import
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -18,7 +18,7 @@ export default function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [sound, setSound] = useState();
-  
+
   // Library State
   const [library, setLibrary] = useState([]);
 
@@ -41,7 +41,7 @@ export default function App() {
     if (currentUser) {
       loadLibrary();
     } else {
-      setLibrary([]); // Clear library on logout
+      setLibrary([]);
     }
   }, [currentUser]);
 
@@ -95,7 +95,7 @@ export default function App() {
 
     if (success) {
       setSelectedFile(null);
-      loadLibrary(); // Refresh the list so the new track appears instantly!
+      loadLibrary(); 
     } else {
       Alert.alert("Upload Failed", error);
     }
@@ -103,7 +103,7 @@ export default function App() {
 
   const playAudio = async (uri) => {
     try {
-      if (sound) await sound.unloadAsync(); // Stop current track if one is playing
+      if (sound) await sound.unloadAsync(); 
       const { sound: newSound } = await Audio.Sound.createAsync({ uri });
       setSound(newSound);
       await newSound.playAsync();
@@ -111,6 +111,43 @@ export default function App() {
       Alert.alert("Error", "Could not play audio.");
     }
   };
+
+const handleDelete = async (fileId, downloadUrl) => {
+    
+  // The actual deletion logic extracted into a helper function
+  const executeDelete = async () => {
+    if (sound) {
+      await sound.unloadAsync();
+      setSound(null);
+    }
+
+    const { success, error } = await deleteAudioFile(fileId, downloadUrl);
+    if (success) {
+      loadLibrary(); 
+    } else {
+      Alert.alert("Delete Failed", error);
+    }
+  };
+
+  // 1. If testing on Web browser
+  if (Platform.OS === 'web') {
+    const confirmed = window.confirm("Are you sure you want to permanently delete this audio file?");
+    if (confirmed) {
+      executeDelete();
+    }
+  } 
+  // 2. If testing on iOS/Android Simulator
+  else {
+    Alert.alert(
+      "Delete Track",
+      "Are you sure you want to permanently delete this audio file?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: executeDelete }
+      ]
+    );
+  }
+};
 
   // --- Renders ---
   if (loading) return <View style={{ flex: 1, justifyContent: 'center' }}><ActivityIndicator size="large" /></View>;
@@ -138,7 +175,13 @@ export default function App() {
             library.map((file) => (
               <View key={file.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#eee' }}>
                 <Text style={{ flex: 1, marginRight: 10 }} numberOfLines={1}>{file.file_name}</Text>
-                <Button title="Play" color="green" onPress={() => playAudio(file.download_url)} />
+                
+                {/* Updated Row Buttons */}
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <Button title="Play" color="green" onPress={() => playAudio(file.download_url)} />
+                  <Button title="X" color="red" onPress={() => handleDelete(file.id, file.download_url)} />
+                </View>
+
               </View>
             ))
           )}

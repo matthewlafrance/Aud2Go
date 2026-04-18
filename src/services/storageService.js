@@ -69,3 +69,37 @@ export const getUserAudioFiles = async (userId) => {
     return { success: false, files: [], error: error.message };
   }
 };
+
+/**
+ * Deletes an audio file from Supabase Storage and removes its metadata from Postgres.
+ */
+export const deleteAudioFile = async (fileId, downloadUrl) => {
+  try {
+    // 1. Extract the specific storage path from the public download URL
+    // The URL looks like: https://[URL]/storage/v1/object/public/audio/userId/12345_fileName.mp3
+    const urlParts = downloadUrl.split('/public/audio/');
+    const storagePath = urlParts.length > 1 ? urlParts[1] : null;
+
+    if (storagePath) {
+      // Decode the URI in case the file name had spaces in it
+      const { error: storageError } = await supabase.storage
+        .from('audio')
+        .remove([decodeURIComponent(storagePath)]);
+
+      if (storageError) console.error("Storage delete error:", storageError);
+    }
+
+    // 2. Delete the record from the Postgres database
+    const { error: dbError } = await supabase
+      .from('audio_files')
+      .delete()
+      .eq('id', fileId);
+
+    if (dbError) throw dbError;
+
+    return { success: true, error: null };
+  } catch (error) {
+    console.error("DELETE ERROR CAUGHT:", error);
+    return { success: false, error: error.message };
+  }
+};
