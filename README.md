@@ -4,9 +4,11 @@
   * `index.tsx` — Main frontend view
 * **`src/`** — Backend source
   * **`config/`**
-    * `firebase.js` — API keys & connection to Firebase
+    * `supabase.js` — API keys & connection to Supabase database/storage
   * **`services/`**
-    * `authService.js` — Authentication engine
+    * `authService.js` — Authentication engine (Login/Signup/Logout)
+    * `storageService.js` — Audio upload engine & library fetching
+
 
 ## How to Run
 

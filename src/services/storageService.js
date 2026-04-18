@@ -1,39 +1,71 @@
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { storage, db } from '../config/firebase';
+// src/services/storageService.js
+import { supabase } from '../config/supabase';
 
 /**
- * Uploads an audio file to Firebase Storage and saves metadata to Firestore.
+ * Uploads an audio file to Supabase Storage and saves metadata to Postgres.
  */
- export const uploadAudioFile = async (userId, fileUri, fileName) => {
+export const uploadAudioFile = async (userId, fileUri, fileName) => {
   try {
-    console.log("1. Starting upload process...");
-
-    console.log("2. Fetching local file to convert to Blob...");
+    console.log("1. Converting local file to ArrayBuffer...");
     const response = await fetch(fileUri);
-    const blob = await response.blob();
-    console.log("Blob created successfully!");
+    const arrayBuffer = await response.arrayBuffer();
 
-    console.log("3. Pushing to Firebase Storage...");
-    const storageRef = ref(storage, `users/${userId}/audio/${fileName}`);
-    const snapshot = await uploadBytes(storageRef, blob);
-    console.log("Storage upload complete!");
+    console.log("2. Uploading to Supabase Storage...");
+    // We add Date.now() to ensure every file has a unique path, even if names match
+    const filePath = `${userId}/${Date.now()}_${fileName}`;
+    const { error: uploadError } = await supabase.storage
+      .from('audio')
+      .upload(filePath, arrayBuffer, {
+        contentType: 'audio/mpeg', // Generic audio MIME type
+      });
 
-    console.log("4. Getting download URL...");
-    const downloadUrl = await getDownloadURL(snapshot.ref);
+    if (uploadError) throw uploadError;
 
-    console.log("5. Writing to Firestore...");
-    const docRef = await addDoc(collection(db, 'audioFiles'), {
-      userId,
-      fileName,
-      downloadUrl,
-      createdAt: serverTimestamp(),
-    });
-    console.log("Firestore write complete!");
+    console.log("3. Retrieving public URL...");
+    const { data: publicUrlData } = supabase.storage
+      .from('audio')
+      .getPublicUrl(filePath);
+    
+    const downloadUrl = publicUrlData.publicUrl;
 
+    console.log("4. Saving metadata to Postgres...");
+    const { error: dbError } = await supabase
+      .from('audio_files')
+      .insert([
+        {
+          user_id: userId,
+          file_name: fileName,
+          download_url: downloadUrl,
+        }
+      ]);
+
+    if (dbError) throw dbError;
+
+    console.log("Upload Pipeline Complete!");
     return { success: true, downloadUrl, error: null };
+
   } catch (error) {
     console.error("UPLOAD ERROR CAUGHT:", error);
     return { success: false, downloadUrl: null, error: error.message };
+  }
+};
+
+/**
+ * Fetches all audio files uploaded by a specific user from Postgres.
+ */
+export const getUserAudioFiles = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('audio_files')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { success: true, files: data, error: null };
+  } catch (error) {
+    console.error("FETCH ERROR:", error);
+    return { success: false, files: [], error: error.message };
   }
 };
