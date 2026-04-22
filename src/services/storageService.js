@@ -1,9 +1,9 @@
 // src/services/storageService.js
 import { supabase } from '../config/supabase';
 
-/**
- * Uploads an audio file to Supabase Storage and saves metadata to Postgres.
- */
+/*
+    Uploads an audio file to Supabase Storage and saves metadata to Postgres.
+*/
 export const uploadAudioFile = async (userId, fileUri, fileName) => {
   try {
     console.log("1. Converting local file to ArrayBuffer...");
@@ -50,9 +50,9 @@ export const uploadAudioFile = async (userId, fileUri, fileName) => {
   }
 };
 
-/**
- * Fetches all audio files uploaded by a specific user from Postgres.
- */
+/*
+    Fetches all audio files uploaded by a specific user from Postgres.
+*/
 export const getUserAudioFiles = async (userId) => {
   try {
     const { data, error } = await supabase
@@ -70,13 +70,12 @@ export const getUserAudioFiles = async (userId) => {
   }
 };
 
-/**
- * Deletes an audio file from Supabase Storage and removes its metadata from Postgres.
- */
+/*
+  Deletes an audio file from Supabase Storage and removes its metadata from Postgres.
+*/
 export const deleteAudioFile = async (fileId, downloadUrl) => {
   try {
-    // 1. Extract the specific storage path from the public download URL
-    // The URL looks like: https://[URL]/storage/v1/object/public/audio/userId/12345_fileName.mp3
+    // Extract the specific storage path from the public download URL
     const urlParts = downloadUrl.split('/public/audio/');
     const storagePath = urlParts.length > 1 ? urlParts[1] : null;
 
@@ -89,7 +88,7 @@ export const deleteAudioFile = async (fileId, downloadUrl) => {
       if (storageError) console.error("Storage delete error:", storageError);
     }
 
-    // 2. Delete the record from the Postgres database
+    // Delete the record from the Postgres database
     const { error: dbError } = await supabase
       .from('audio_files')
       .delete()

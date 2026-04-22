@@ -1,13 +1,21 @@
+## Features
+* **Authentication:** Secure user login and registration via Supabase Auth.
+* **Cloud Storage:** Direct audio file uploads to Supabase Storage.
+* **Database Management:** File metadata synced to a PostgreSQL database.
+* **Native Playback:** Cross-platform audio playback using.
+
 ## File Structure Documentation
 
-* **`app/`**
-  * `index.tsx` — Main frontend view
-* **`src/`** — Backend source
+* **`app/`** — Frontend Views (Expo Router)
+  * `index.tsx` — Authentication portal (Login/Signup). Redirects on success.
+  * `library.tsx` — The main dashboard. Handles file uploading, rendering the user's library, and text-based search filtering.
+  * `player.tsx` — The "Now Playing" screen with playback controls.
+* **`src/`** — Backend Source & API
   * **`config/`**
-    * `supabase.js` — API keys & connection to Supabase database/storage
+    * `supabase.js` — Core Supabase client initialization and environment variables.
   * **`services/`**
-    * `authService.js` — Authentication engine (Login/Signup/Logout)
-    * `storageService.js` — Audio upload engine & library fetching
+    * `authService.js` — Handles user registration, login, and session persistence.
+    * `storageService.js` — Handles the full CRUD pipeline for audio files (uploading to buckets, inserting metadata to Postgres, fetching library lists, and deletion).
 
 
 ## How to Run
