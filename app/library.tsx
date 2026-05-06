@@ -2,11 +2,11 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, FlatList, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, FlatList, Text, TextInput, View, Platform } from 'react-native';
 
 import { supabase } from '../src/config/supabase';
 import { logoutUser } from '../src/services/authService';
-import { getUserAudioFiles, uploadAudioFile } from '../src/services/storageService';
+import { getUserAudioFiles, uploadAudioFile, deleteAudioFile } from '../src/services/storageService';
 
 import { useAudio } from '../context/AudioContext';
 
@@ -62,6 +62,36 @@ export default function LibraryScreen() {
     } catch (err) {
       setIsUploading(false);
       Alert.alert("Error", err.message);
+    }
+  };
+
+  const handleDelete = async (fileId, downloadUrl) => {
+    // The actual deletion logic
+    const performDelete = async () => {
+      const { success, error } = await deleteAudioFile(fileId, downloadUrl);
+      if (success) {
+        fetchFiles(userId); // Refresh list from Supabase
+      } else {
+        Alert.alert("Error", error || "Failed to delete file");
+      }
+    };
+
+    // Check if we are on Web vs Mobile
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm("Are you sure you want to permanently delete this file?");
+      if (confirmed) {
+        performDelete();
+      }
+    } else {
+      // Mobile Native Alert
+      Alert.alert(
+        "Delete Track",
+        "Are you sure you want to permanently delete this file?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Delete", style: "destructive", onPress: performDelete }
+        ]
+      );
     }
   };
 
@@ -198,7 +228,7 @@ export default function LibraryScreen() {
         Audio File
       </Text>
     </View>
-
+    <View style={{ flexDirection: "row", gap: 10 }}>
     <Button
       title="Play"
       color="#8B5CF6"
@@ -207,6 +237,12 @@ export default function LibraryScreen() {
         router.push('/player');
       }}
     />
+    <Button
+        title="Delete"
+        color="#EF4444"
+        onPress={() => handleDelete(item.id, item.download_url)}
+      />
+  </View>
   </View>
 )}
         ListEmptyComponent={<Text style={{ textAlign: 'center', color: 'gray', marginTop: 20 }}>No files found.</Text>}

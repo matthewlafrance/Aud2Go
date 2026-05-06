@@ -24,7 +24,7 @@ const expoStorageAdapter = {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: expoStorageAdapter, // Plug the wrapper in here
+    storage: expoStorageAdapter,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
