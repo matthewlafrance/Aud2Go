@@ -77,6 +77,13 @@ export default function PlayerScreen() {
     }
   };
 
+  const formatTime = (millis) => {
+    const totalSeconds = Math.floor(millis / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
   return (
     <View
       style={{
@@ -158,21 +165,39 @@ export default function PlayerScreen() {
           gap: 24,
         }}
       ></View>
-      <Slider
-        style={{ width: 300, height: 40, marginBottom: 20 }}
-        minimumValue={0}
-        maximumValue={duration}
-        value={position}
-        minimumTrackTintColor="#8B5CF6"
-        maximumTrackTintColor="#A1A1AA"
-        thumbTintColor="#fefefe"
-        onSlidingComplete={async (value) => {
-          if (sound) {
-            await sound.setPositionAsync(value);
-          }
-        }}
-      />
-      <View style={{ flexDirection: "row", gap: 40, marginTop: 20 }}>
+      <View style={{ width: 300 }}>
+        <Slider
+          style={{ width: "100%", height: 40 }}
+          minimumValue={0}
+          maximumValue={duration}
+          value={position}
+          minimumTrackTintColor="#8B5CF6"
+          maximumTrackTintColor="#A1A1AA"
+          thumbTintColor="#fefefe"
+          onSlidingComplete={async (value) => {
+            if (sound) {
+              await sound.setPositionAsync(value);
+            }
+          }}
+        />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: -10,
+          }}
+        >
+          <Text style={{ color: "#A1A1AA", fontSize: 12 }}>
+            {formatTime(position)}
+          </Text>
+
+          <Text style={{ color: "#A1A1AA", fontSize: 12 }}>
+            -{formatTime(duration - position)}
+          </Text>
+        </View>
+      </View>
+
+      <View style={{ flexDirection: "row", gap: 40, marginTop: 40 }}>
         <Pressable onPress={prevTrack}>
           <Ionicons name="play-back" size={40} color="#FFFFFF" />
         </Pressable>
