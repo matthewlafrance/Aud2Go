@@ -8,11 +8,15 @@ import { supabase } from '../src/config/supabase';
 import { logoutUser } from '../src/services/authService';
 import { getUserAudioFiles, uploadAudioFile } from '../src/services/storageService';
 
+import { useAudio } from '../context/AudioContext';
+
 export default function LibraryScreen() {
   const [library, setLibrary] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [userId, setUserId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const { setQueue } = useAudio();
 
   useEffect(() => {
     // Get user and load files
@@ -161,7 +165,7 @@ export default function LibraryScreen() {
       <FlatList
         data={filteredFiles}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
   <View
     style={{
       padding: 18,
@@ -198,15 +202,10 @@ export default function LibraryScreen() {
     <Button
       title="Play"
       color="#8B5CF6"
-      onPress={() =>
-        router.push({
-          pathname: "/player",
-          params: {
-            url: item.download_url,
-            name: item.file_name,
-          },
-        })
-      }
+      onPress={() => {
+        setQueue(filteredFiles, index);
+        router.push('/player');
+      }}
     />
   </View>
 )}
