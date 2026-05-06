@@ -43,16 +43,87 @@ export default function PlayerScreen() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 18, color: 'gray', marginBottom: 10 }}>Now Playing</Text>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 40 }}>
-        {name}
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: "#0F0F0F",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+    }}
+  >
+    <View
+      style={{
+        width: 280,
+        height: 280,
+        borderRadius: 32,
+        backgroundColor: "#8B5CF6",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 40,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 90,
+          color: "white",
+          fontWeight: "800",
+        }}
+      >
+        ♪
       </Text>
-
-      <View style={{ flexDirection: 'row', gap: 20 }}>
-        <Button title={isPlaying ? "Pause" : "Play"} onPress={togglePlayback} />
-        <Button title="Close Player" color="gray" onPress={() => router.back()} />
-      </View>
     </View>
-  );
+
+    <Text
+      style={{
+        color: "#71717A",
+        fontSize: 12,
+        letterSpacing: 2,
+        marginBottom: 10,
+      }}
+    >
+      NOW PLAYING
+    </Text>
+
+    <Text
+      style={{
+        fontSize: 28,
+        fontWeight: "800",
+        color: "white",
+        textAlign: "center",
+        marginBottom: 10,
+      }}
+    >
+      {name}
+    </Text>
+
+    <Text
+      style={{
+        color: "#A1A1AA",
+        marginBottom: 40,
+      }}
+    >
+      Uploaded Audio
+    </Text>
+
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 24,
+      }}
+    >
+      <Button
+        title={isPlaying ? "Pause" : "Play"}
+        color="#8B5CF6"
+        onPress={togglePlayback}
+      />
+
+      <Button
+        title="Close"
+        color="#3F3F46"
+        onPress={() => router.back()}
+      />
+    </View>
+  </View>
+);
 }

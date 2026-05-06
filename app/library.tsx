@@ -67,46 +67,149 @@ export default function LibraryScreen() {
   );
 
   return (
-    <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 20 }}>
+    <View style={{ flex: 1, paddingTop: 60, paddingHorizontal: 20, backgroundColor: "#0F0F0F",}}>
       {/* HEADER */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>All Files</Text>
-        <Button title="Logout" color="red" onPress={handleLogout} />
-      </View>
+      <View
+  style={{
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  }}
+>
+  <View>
+    <Text
+      style={{
+        fontSize: 32,
+        fontWeight: "800",
+        color: "white",
+      }}
+    >
+      Library
+    </Text>
+
+    <Text
+      style={{
+        color: "#A1A1AA",
+        marginTop: 4,
+      }}
+    >
+      Your uploaded tracks
+    </Text>
+  </View>
+
+  <Button title="Logout" color="#EF4444" onPress={handleLogout} />
+</View>
 
       {/* UPLOAD BAR */}
-      <View style={{ backgroundColor: '#f0f0f0', padding: 15, borderRadius: 10, marginBottom: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text style={{ fontWeight: '600', color: '#333' }}>Add a new track:</Text>
-        {isUploading ? (
-          <ActivityIndicator size="small" color="#007BFF" />
-        ) : (
-          <Button title="Upload File" onPress={handleUpload} />
-        )}
-      </View>
+      <View
+  style={{
+    backgroundColor: "#18181B",
+    padding: 20,
+    borderRadius: 24,
+    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  }}
+>
+  <View>
+    <Text
+      style={{
+        fontWeight: "700",
+        color: "white",
+        fontSize: 18,
+      }}
+    >
+      Upload Audio
+    </Text>
+
+    <Text
+      style={{
+        color: "#A1A1AA",
+        marginTop: 4,
+      }}
+    >
+      MP3s, podcasts, lectures
+    </Text>
+  </View>
+
+  {isUploading ? (
+    <ActivityIndicator size="small" color="#8B5CF6" />
+  ) : (
+    <Button title="Upload" onPress={handleUpload} />
+  )}
+</View>
 
       {/* SEARCH */}
       <TextInput
-        placeholder="Search by name..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8, marginBottom: 20, backgroundColor: '#f9f9f9' }}
-      />
+  placeholder="Search your library..."
+  placeholderTextColor="#777"
+  value={searchQuery}
+  onChangeText={setSearchQuery}
+  style={{
+    backgroundColor: "#18181B",
+    color: "white",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 20,
+    fontSize: 16,
+  }}
+/>
 
       {/* FILE LIST */}
       <FlatList
         data={filteredFiles}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={{ padding: 15, borderBottomWidth: 1, borderColor: '#eee', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ flex: 1, marginRight: 10 }} numberOfLines={1}>{item.file_name}</Text>
-            <Button 
-              title="Play" 
-              color="green"
-              // Pass data to the player screen
-              onPress={() => router.push({ pathname: '/player', params: { url: item.download_url, name: item.file_name } })} 
-            />
-          </View>
-        )}
+  <View
+    style={{
+      padding: 18,
+      backgroundColor: "#18181B",
+      borderRadius: 20,
+      marginBottom: 14,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    }}
+  >
+    <View style={{ flex: 1, marginRight: 14 }}>
+      <Text
+        style={{
+          color: "white",
+          fontSize: 16,
+          fontWeight: "700",
+        }}
+        numberOfLines={1}
+      >
+        {item.file_name}
+      </Text>
+
+      <Text
+        style={{
+          color: "#A1A1AA",
+          marginTop: 4,
+        }}
+      >
+        Audio File
+      </Text>
+    </View>
+
+    <Button
+      title="Play"
+      color="#8B5CF6"
+      onPress={() =>
+        router.push({
+          pathname: "/player",
+          params: {
+            url: item.download_url,
+            name: item.file_name,
+          },
+        })
+      }
+    />
+  </View>
+)}
         ListEmptyComponent={<Text style={{ textAlign: 'center', color: 'gray', marginTop: 20 }}>No files found.</Text>}
       />
     </View>
